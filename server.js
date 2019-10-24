@@ -45,9 +45,9 @@ app.use(routes);
 // Database configuration with mongoose
 // Connect to the Mongo DB
 
-var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/unit";
+var MONGOLAB_WHITE_URI = process.env.MONGOLAB_WHITE_URI || "mongodb://localhost/unit";
 
-mongoose.connect(MONGODB_URI);
+mongoose.connect(MONGOLAB_WHITE_URI);
 
 
 
