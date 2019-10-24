@@ -15,7 +15,7 @@ var cheerio = require("cheerio");
 
 var db = require("./models");
 
-var port = process.env.port || 3000;
+let PORT = process.env.PORT || 3000;
 
 
 // Initialize Express
@@ -48,6 +48,6 @@ require("./controller/controller.js")(app);
 
 
 // Listen on port
-app.listen(port, function() {
-  console.log("App running on port " + port);
+app.listen( PORT, function() {
+  console.log("App running on port " + PORT);
 });
