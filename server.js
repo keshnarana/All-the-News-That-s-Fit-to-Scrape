@@ -15,7 +15,7 @@ var cheerio = require("cheerio");
 
 var db = require("./models");
 
-var port = 3000;
+var port = process.env.port || 3000;
 
 
 // Initialize Express
@@ -44,9 +44,10 @@ var routes = require("./controller/controller.js");
 app.use(routes);
 // Database configuration with mongoose
 // Connect to the Mongo DB
-mongoose.connect("mongodb://localhost/unit", { useNewUrlParser: true });
 
-//mongoose.connect("mongodb://localhost/mongoscraper");
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/unit";
+
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true });
 
 
 
