@@ -38,16 +38,12 @@ app.engine("handlebars", exphbs({
     partialsDir: path.join(__dirname, "/views/layouts/partials")
 }));
 app.set("view engine", "handlebars");
+//cofigure route
+require("./controller/controller.js")(app);
 
-var routes = require("./controller/controller.js");
-
-app.use(routes);
 // Database configuration with mongoose
 // Connect to the Mongo DB
 
-var MONGOLAB_WHITE_URI = process.env.MONGOLAB_WHITE_URI || "mongodb://localhost/unit";
-
-mongoose.connect(MONGOLAB_WHITE_URI);
 
 
 

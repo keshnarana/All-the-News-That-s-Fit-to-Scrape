@@ -15,12 +15,26 @@ var request = require("request");
 var cheerio = require("cheerio");
 
 var db = require("../models");
-var router = express.Router()
-// Routes
-// ======
+
+mongoose.Promise = Promise; // Set mongoose to leverage Built in JavaScript ES6 Promises
+mongoose.connect("mongodb://heroku_rfh3hd8x:qkhrmq23ahvmkjm0hmr999s710@ds339348.mlab.com:39348/heroku_rfh3hd8x" || "mongodb://localhost/unit", { // Connect to the Mongo DB
+  useMongoClient: true
+});
+
+let mongooseConnection = mongoose.connection;
+
+mongooseConnection.on('error', console.error.bind(console, 'connection error:'));
+mongooseConnection.once('open', function() {
+  console.log(`Sucessfully Connected to Mongo DB !`); // If Connection is successful, Console.log(Message)
+});
+
+
+
+module.exports = (app) => {
+
 
 //GET requests to render Handlebars pages
-router.get("/", function(req, res) {
+app.get("/", function(req, res) {
     db.Article.find({"saved": false}, function(error, data) {
       var hbsObject = {
         article: data
@@ -30,7 +44,7 @@ router.get("/", function(req, res) {
     });
   });
   
-  router.get("/saved", function(req, res) {
+  app.get("/saved", function(req, res) {
       db.Article.find({"saved": true}).populate("notes").exec(function(error, articles) {
       var hbsObject = {
         article: articles
@@ -40,7 +54,7 @@ router.get("/", function(req, res) {
   });
   
   // A GET request to scrape the echojs website
-  router.get("/scrape", function(req, res) {
+  app.get("/scrape", function(req, res) {
     // First, we grab the body of the html with request
     request("https://www.nytimes.com/", function(error, response, html) {
       // Then, we load that into cheerio and save it to $ for a shorthand selector
@@ -88,7 +102,7 @@ router.get("/", function(req, res) {
   });
   
   // This will get the articles we scraped from the mongoDB
-  router.get("/articles", function(req, res) {
+  app.get("/articles", function(req, res) {
     // Grab every doc in the Articles array
     db.Article.find({}, function(error, doc) {
       // Log any errors
@@ -103,7 +117,7 @@ router.get("/", function(req, res) {
   });
   
   // Grab an article by it's ObjectId
-  router.get("/articles/:id", function(req, res) {
+  app.get("/articles/:id", function(req, res) {
     // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
     db.Article.findOne({ "_id": req.params.id })
     // ..and populate all of the notes associated with it
@@ -123,7 +137,7 @@ router.get("/", function(req, res) {
   
   
   // Save an article
-  router.post("/articles/save/:id", function(req, res) {
+  app.post("/articles/save/:id", function(req, res) {
         // Use the article id to find and update its saved boolean
         db.Article.findOneAndUpdate({ "_id": req.params.id }, { "saved": true})
         // Execute the above query
@@ -140,7 +154,7 @@ router.get("/", function(req, res) {
   });
   
   // Delete an article
-  router.post("/articles/delete/:id", function(req, res) {
+  app.post("/articles/delete/:id", function(req, res) {
         // Use the article id to find and update its saved boolean
         db.Article.findOneAndUpdate({ "_id": req.params.id }, {"saved": false, "notes": []})
         // Execute the above query
@@ -158,7 +172,7 @@ router.get("/", function(req, res) {
   
   
   // Create a new note
-  router.post("/notes/save/:id", function(req, res) {
+  app.post("/notes/save/:id", function(req, res) {
     // Create a new note and pass the req.body to the entry
     var newNote = new  db.Note({
       body: req.body.text,
@@ -192,7 +206,7 @@ router.get("/", function(req, res) {
   });
   
   // Delete a note
-  router.delete("/notes/delete/:note_id/:article_id", function(req, res) {
+  app.delete("/notes/delete/:note_id/:article_id", function(req, res) {
     // Use the note id to find and delete it
     db.Note.findOneAndRemove({ "_id": req.params.note_id }, function(err) {
       // Log any errors
@@ -217,4 +231,4 @@ router.get("/", function(req, res) {
       }
     });
   });
-  module.exports = router;
+}
